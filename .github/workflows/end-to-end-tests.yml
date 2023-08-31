@@ -24,7 +24,7 @@ jobs:
 
       - name: Build Lambdas
         run: |
-          cd stack-bytes-lambda
+          cd lambda
           mvn clean package shade:shade
 
       - name: Set up Docker
