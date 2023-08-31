@@ -1,0 +1,40 @@
+name: Testcontainers End-to-End Testing
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  end-to-end-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Maven
+        run: sudo apt-get install -y maven
+
+      - name: Build Lambdas
+        run: |
+          cd stack-bytes-lambda
+          mvn clean package shade:shade
+
+      - name: Set up Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Build and test with Maven
+        env:
+          LOCALSTACK_API_KEY: ${{ secrets.LOCALSTACK_API_KEY }}
+        run: |
+          cd integration-tests
+          mvn clean test
